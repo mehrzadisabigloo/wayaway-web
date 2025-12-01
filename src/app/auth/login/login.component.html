@@ -1,0 +1,537 @@
+<div class="main_container vh-100">
+  <div class="container">
+    <h1 class="text-center">ملک وی</h1>
+
+    <!-- ورود با موبایل -->
+    @if (shopMobilePopup) {
+    <section>
+      <h5 class="text-body fw-bold login-text">ورود | ثبت‌نام</h5>
+
+      <p class="card_description text-body" style="margin-top: 16px; margin-bottom: 4px">سلام!</p>
+      <p class="card_description text-muted" style="margin: 0 0 8px 0">
+        لطفا شماره موبایل خود را وارد کنید
+      </p>
+
+      <form [formGroup]="checkMobileForm" (ngSubmit)="sendMobileNumberToAPI(false)">
+        <div class="form-group floating-label-group">
+          <input
+            formControlName="mobile"
+            type="tel"
+            id="mobile"
+            class="form-control"
+            placeholder=" "
+            dir="ltr"
+            inputmode="tel"
+            autocomplete="tel"
+            [ngStyle]="
+              checkMobileForm.get('mobile')?.invalid && checkMobileForm.get('mobile')?.touched
+                ? { 'border-color': 'var(--color-error)' }
+                : null
+            "
+            [attr.aria-invalid]="checkMobileForm.get('mobile')?.invalid ? true : null"
+          />
+          <label for="mobile">شماره موبایل</label>
+          <i class="fas fa-mobile-screen-button input-icon"></i>
+        </div>
+
+        <div
+          *ngIf="checkMobileForm.get('mobile')?.invalid && checkMobileForm.get('mobile')?.touched"
+          style="color: var(--color-error)"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              vallidationErrorsForMobile;
+              context: { control: checkMobileForm.get('mobile') }
+            "
+          ></ng-container>
+        </div>
+
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          ورود
+          <i *ngIf="isLoading" class="fas fa-spinner fa-pulse" style="margin-right: 8px"></i>
+        </button>
+      </form>
+
+      <!-- <span class="agreement text-muted" style="display:block;margin-top:12px;">
+          ورود به منزله پذیرش قوانین حریم‌خصوصی <a href="#">هی‌لوب</a> است
+        </span> -->
+    </section>
+    }
+
+    <!-- تایید کد -->
+    @if (showConfiirmCodePopup) {
+    <section>
+      <h5 class="text-body fw-bold login-text">ورود | ثبت‌نام</h5>
+      <p class="card_description text-body" style="margin-top: 16px">
+        کد تایید ۴ رقمی پیامک شده را وارد کنید
+      </p>
+
+      <form [formGroup]="verificationCodeForm" (ngSubmit)="processVerificationCode()">
+        <div class="form-group floating-label-group">
+          <input
+            formControlName="verifyCode"
+            id="verifyCode"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            dir="ltr"
+            class="form-control"
+            placeholder=" "
+            [ngStyle]="
+              verificationCodeForm.get('verifyCode')?.invalid &&
+              verificationCodeForm.get('verifyCode')?.touched
+                ? { 'border-color': 'var(--color-error)' }
+                : null
+            "
+            [attr.aria-invalid]="verificationCodeForm.get('verifyCode')?.invalid ? true : null"
+          />
+          <label for="verifyCode">کد تایید</label>
+          <i class="fas fa-key input-icon"></i>
+        </div>
+
+        <div
+          *ngIf="
+            verificationCodeForm.get('verifyCode')?.invalid &&
+            verificationCodeForm.get('verifyCode')?.touched
+          "
+          style="color: var(--color-error)"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              vallidationErrorsForConfirmCode;
+              context: { control: verificationCodeForm.get('verifyCode') }
+            "
+          ></ng-container>
+        </div>
+
+        @if (!resendDisabled) {
+        <p
+          class="card_description text-center resend_code_btn"
+          style="margin: 16px 0; cursor: pointer"
+          [ngClass]="{ 'text-muted': isLoading }"
+          (click)="resendVerifyCode()"
+        >
+          ارسال مجدد کد
+        </p>
+        } @else {
+        <p class="card_description text-center text-muted" style="margin: 16px 0">
+          {{ displayedTimer }} مانده تا دریافت مجدد کد
+        </p>
+        }
+
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          ورود
+          <i *ngIf="isLoading" class="fas fa-spinner fa-pulse" style="margin-right: 8px"></i>
+        </button>
+      </form>
+
+      <div class="card_description text-center" style="margin: 8px 0">
+        <p class="edit_phone text-primary" style="cursor: pointer" (click)="OnEditMobile()">
+          ویرایش شماره
+        </p>
+      </div>
+      <!-- 
+        <span class="agreement text-muted" style="display:block;margin-top:4px;">
+          ورود به منزله پذیرش قوانین حریم‌خصوصی <a href="#">هی‌لوب</a> است
+        </span> -->
+    </section>
+    }
+
+    <!-- ورود با رمز عبور -->
+    @if (showLoginWithPasswordPopup) {
+    <section>
+      <h5 class="text-body fw-bold login-text">ورود | ثبت‌نام</h5>
+      <p class="card_description text-muted" style="margin-top: 16px; margin-bottom: 8px">
+        رمز عبور خود را وارد کنید
+      </p>
+
+      <form (ngSubmit)="LoginWithPassword()" autocomplete="off">
+        <!-- موبایل -->
+        <div [formGroup]="checkMobileForm" class="form-group floating-label-group">
+          <input
+            formControlName="mobile"
+            type="tel"
+            id="login_mobile"
+            class="form-control"
+            placeholder=" "
+            dir="ltr"
+            inputmode="tel"
+            autocomplete="tel"
+            [ngStyle]="
+              checkMobileForm.get('mobile')?.invalid && checkMobileForm.get('mobile')?.touched
+                ? { 'border-color': 'var(--color-error)' }
+                : null
+            "
+          />
+          <label for="login_mobile">شماره موبایل</label>
+          <i class="fas fa-mobile-screen-button input-icon"></i>
+          <i
+            class="fas fa-pen input-icon end"
+            (click)="OnEditMobile()"
+            title="ویرایش شماره"
+            aria-label="ویرایش شماره"
+          ></i>
+        </div>
+
+        <!-- پسورد -->
+        <div [formGroup]="passwordForm" class="form-group floating-label-group">
+          <input
+            formControlName="password"
+            [type]="isPasswordVisible ? 'text' : 'password'"
+            id="login_password"
+            class="form-control"
+            placeholder=" "
+            autocomplete="current-password"
+            [ngStyle]="
+              passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched
+                ? { 'border-color': 'var(--color-error)' }
+                : null
+            "
+          />
+          <label for="login_password">رمز عبور</label>
+          <i
+            *ngIf="!isPasswordVisible"
+            (click)="togglePasswordVisibility()"
+            class="fas fa-eye input-icon clickable"
+          ></i>
+          <i
+            *ngIf="isPasswordVisible"
+            (click)="togglePasswordVisibility()"
+            class="fas fa-eye-slash input-icon clickable"
+          ></i>
+        </div>
+
+        <div
+          *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched"
+          style="color: var(--color-error)"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              vallidationErrorsForLoginPassword;
+              context: { control: passwordForm.get('password') }
+            "
+          ></ng-container>
+        </div>
+
+        <div class="d-flex justify-content-between" style="margin: 8px 0">
+          <span
+            class="text-primary"
+            style="cursor: pointer"
+            (click)="oldUserLoginWithPasswordButton()"
+            >ورود با موبایل</span
+          >
+          <span class="text-primary" style="cursor: pointer" (click)="forgotPassword()"
+            >فراموشی رمز عبور</span
+          >
+        </div>
+        <!-- <div class="d-flex justify-content-center">
+            <span class="edit_phone text-primary" style="cursor:pointer" (click)="OnEditMobile()">ویرایش شماره</span>
+          </div> -->
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          style="margin-top: 8px"
+          [disabled]="isLoading"
+        >
+          ورود
+          <i *ngIf="isLoading" class="fas fa-spinner fa-pulse" style="margin-right: 8px"></i>
+        </button>
+      </form>
+
+      <!-- <span class="agreement text-muted" style="display:block;margin-top:12px;">
+          ورود به منزله پذیرش قوانین حریم‌خصوصی <a href="#">هی‌لوب</a> است
+        </span> -->
+    </section>
+    }
+
+    <!-- ساخت رمز عبور -->
+    @if (setPassword) {
+    <section>
+      <h5 class="text-body fw-bold login-text">ساخت رمز عبور</h5>
+      <p class="card_description text-muted" style="margin-top: 16px; margin-bottom: 0">
+        لطفا برای ورودهای بعدی گذرواژه خود را ثبت کنید
+      </p>
+
+      <form [formGroup]="setPasswordForm" (ngSubmit)="OnSetPassword()" autocomplete="off">
+        <!-- رمز -->
+        <div class="form-group floating-label-group">
+          <input
+            formControlName="password"
+            [type]="isPasswordVisible ? 'text' : 'password'"
+            id="new_password"
+            class="form-control"
+            placeholder=" "
+            required
+            autocomplete="new-password"
+            [ngStyle]="
+              setPasswordForm.get('password')?.invalid && setPasswordForm.get('password')?.touched
+                ? { 'border-color': 'var(--color-error)' }
+                : null
+            "
+          />
+          <label for="new_password">رمز عبور جدید</label>
+          <i
+            *ngIf="!isPasswordVisible"
+            (click)="togglePasswordVisibility()"
+            class="fas fa-eye input-icon clickable"
+          ></i>
+          <i
+            *ngIf="isPasswordVisible"
+            (click)="togglePasswordVisibility()"
+            class="fas fa-eye-slash input-icon clickable"
+          ></i>
+        </div>
+
+        <div
+          *ngIf="
+            setPasswordForm.get('password')?.invalid && setPasswordForm.get('password')?.touched
+          "
+          style="color: var(--color-error)"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              vallidationErrorsForPassword;
+              context: { control: setPasswordForm.get('password') }
+            "
+          ></ng-container>
+        </div>
+
+        <!-- تکرار رمز -->
+        <div class="form-group floating-label-group">
+          <input
+            formControlName="passwordC"
+            [type]="isPasswordVisible ? 'text' : 'password'"
+            id="confirm_password"
+            class="form-control"
+            placeholder=" "
+            required
+            autocomplete="new-password"
+            [ngStyle]="
+              setPasswordForm.get('passwordC')?.invalid && setPasswordForm.get('passwordC')?.touched
+                ? { 'border-color': 'var(--color-error)' }
+                : null
+            "
+          />
+          <label for="confirm_password">تکرار رمز عبور</label>
+          <i
+            *ngIf="!isPasswordVisible"
+            (click)="togglePasswordVisibility()"
+            class="fas fa-eye input-icon clickable"
+          ></i>
+          <i
+            *ngIf="isPasswordVisible"
+            (click)="togglePasswordVisibility()"
+            class="fas fa-eye-slash input-icon clickable"
+          ></i>
+        </div>
+
+        <div
+          *ngIf="
+            setPasswordForm.get('passwordC')?.invalid && setPasswordForm.get('passwordC')?.touched
+          "
+          style="color: var(--color-error)"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              vallidationErrorsForPasswordC;
+              context: { control: setPasswordForm.get('passwordC') }
+            "
+          ></ng-container>
+        </div>
+
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          ورود
+          <i *ngIf="isLoading" class="fas fa-spinner fa-pulse" style="margin-right: 8px"></i>
+        </button>
+      </form>
+      <!-- 
+        <span class="agreement text-muted" style="display:block;margin-top:12px;">
+          ورود به منزله پذیرش قوانین حریم‌خصوصی <a href="#">هی‌لوب</a> است
+        </span> -->
+    </section>
+    }
+
+    <!-- فراموشی/بازیابی رمز -->
+    @if (showForgotPasswordPopup) {
+    <section>
+      <h5 class="text-body fw-bold login-text">بازیابی رمز عبور</h5>
+      <p class="card_description text-muted" style="margin-top: 16px; margin-bottom: 0">
+        رمز عبور جدید خود را وارد کنید
+      </p>
+
+      <form [formGroup]="forgotPasswordForm" (ngSubmit)="onResetPassword()" autocomplete="off">
+        <!-- کد تایید -->
+        <div class="form-group floating-label-group">
+          <input
+            formControlName="mobile_verification_code"
+            id="mobile_verification_code"
+            class="form-control"
+            placeholder=" "
+            required
+            dir="ltr"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            [ngStyle]="
+              forgotPasswordForm.get('mobile_verification_code')?.invalid &&
+              forgotPasswordForm.get('mobile_verification_code')?.touched
+                ? { 'border-color': 'var(--color-error)' }
+                : null
+            "
+          />
+          <label for="mobile_verification_code">کد تایید</label>
+          <i class="fas fa-key input-icon"></i>
+        </div>
+
+        <div
+          *ngIf="
+            forgotPasswordForm.get('mobile_verification_code')?.invalid &&
+            forgotPasswordForm.get('mobile_verification_code')?.touched
+          "
+          style="color: var(--color-error)"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              vallidationErrorsForConfirmCode;
+              context: { control: forgotPasswordForm.get('mobile_verification_code') }
+            "
+          ></ng-container>
+        </div>
+
+        <!-- رمز جدید -->
+        <div class="form-group floating-label-group">
+          <input
+            formControlName="password"
+            [type]="isPasswordVisible ? 'text' : 'password'"
+            id="reset_password"
+            class="form-control"
+            placeholder=" "
+            required
+            autocomplete="new-password"
+            [ngStyle]="
+              forgotPasswordForm.get('password')?.invalid &&
+              forgotPasswordForm.get('password')?.touched
+                ? { 'border-color': 'var(--color-error)' }
+                : null
+            "
+          />
+          <label for="reset_password">رمز عبور جدید</label>
+          <i
+            *ngIf="!isPasswordVisible"
+            (click)="togglePasswordVisibility()"
+            class="fas fa-eye input-icon clickable"
+          ></i>
+          <i
+            *ngIf="isPasswordVisible"
+            (click)="togglePasswordVisibility()"
+            class="fas fa-eye-slash input-icon clickable"
+          ></i>
+        </div>
+
+        <div
+          *ngIf="
+            forgotPasswordForm.get('password')?.invalid &&
+            forgotPasswordForm.get('password')?.touched
+          "
+          style="color: var(--color-error)"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              vallidationErrorsForPassword;
+              context: { control: forgotPasswordForm.get('password') }
+            "
+          ></ng-container>
+        </div>
+
+        <!-- تایید رمز جدید -->
+        <div class="form-group floating-label-group">
+          <input
+            formControlName="password_confirmation"
+            [type]="isPasswordVisible ? 'text' : 'password'"
+            id="password_confirmation"
+            class="form-control"
+            placeholder=" "
+            required
+            autocomplete="new-password"
+            [ngStyle]="
+              forgotPasswordForm.get('password_confirmation')?.invalid &&
+              forgotPasswordForm.get('password_confirmation')?.touched
+                ? { 'border-color': 'var(--color-error)' }
+                : null
+            "
+          />
+          <label for="password_confirmation">تکرار رمز عبور</label>
+          <i
+            *ngIf="!isPasswordVisible"
+            (click)="togglePasswordSecondVisibility()"
+            class="fas fa-eye input-icon clickable"
+          ></i>
+          <i
+            *ngIf="isPasswordVisible"
+            (click)="togglePasswordSecondVisibility()"
+            class="fas fa-eye-slash input-icon clickable"
+          ></i>
+        </div>
+
+        <div
+          *ngIf="
+            forgotPasswordForm.get('password_confirmation')?.invalid &&
+            forgotPasswordForm.get('password_confirmation')?.touched
+          "
+          style="color: var(--color-error)"
+        >
+          <ng-container
+            *ngTemplateOutlet="
+              vallidationErrorsForPasswordC;
+              context: { control: forgotPasswordForm.get('password_confirmation') }
+            "
+          ></ng-container>
+        </div>
+
+        <!-- <div class="d-flex">
+            <span class="text-primary" style="margin:12px 0;cursor:pointer" (click)="togglePasswordVisibility()">نمایش</span>
+          </div> -->
+
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          ورود
+          <i *ngIf="isLoading" class="fas fa-spinner fa-pulse" style="margin-right: 8px"></i>
+        </button>
+      </form>
+
+      <!-- <span class="agreement text-muted" style="display:block;margin-top:12px;">
+          ورود به منزله پذیرش قوانین حریم‌خصوصی <a href="#">هی‌لوب</a> است
+        </span> -->
+    </section>
+    }
+
+    <!-- تمپلیت‌های خطا (بدون تغییر) -->
+    <ng-template #vallidationErrorsForMobile let-control="control">
+      <div *ngIf="control?.hasError('required')">شماره موبایل اجباری است</div>
+      <div *ngIf="control?.hasError('pattern')">شماره موبایل فرمت درستی ندارد</div>
+    </ng-template>
+
+    <ng-template #vallidationErrorsForLoginPassword let-control="control">
+      <div *ngIf="control?.hasError('required')">رمز عبور اجباری است!</div>
+      <div *ngIf="control?.hasError('minlength')">رمز عبور باید حداقل ۶ کاراکتر باشد</div>
+    </ng-template>
+
+    <ng-template #vallidationErrorsForConfirmCode let-control="control">
+      <div *ngIf="control?.hasError('required')">کد تایید اجباری است!</div>
+      <div *ngIf="control?.hasError('pattern')">تعداد ارقام کد تایید درست نیست</div>
+    </ng-template>
+
+    <ng-template #vallidationErrorsForPassword let-control="control">
+      <div *ngIf="control?.hasError('required')">رمز عبور اجباری است</div>
+      <div *ngIf="control?.hasError('pattern')">
+        فقط استفاده از حروف انگلیسی، اعداد و کاراکترهای ویژه مجاز است
+      </div>
+    </ng-template>
+
+    <ng-template #vallidationErrorsForPasswordC let-control="control">
+      <div *ngIf="control?.hasError('required')">رمز عبور اجباری است!</div>
+      <div *ngIf="control?.hasError('pattern')">
+        فقط استفاده از حروف انگلیسی، اعداد و کاراکترهای ویژه مجاز است
+      </div>
+    </ng-template>
+  </div>
+</div>

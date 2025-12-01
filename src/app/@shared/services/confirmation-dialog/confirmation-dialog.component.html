@@ -1,0 +1,78 @@
+<div class="confirmation-dialog">
+  <!-- Header with Icon -->
+  <div class="dialog-header">
+    <div class="icon-container">
+      <div class="icon-circle" [ngClass]="getIconContainerClass()">
+        <i [ngClass]="getIconClass()" aria-hidden="true"></i>
+      </div>
+    </div>
+    <h3 class="dialog-title">
+      <span *ngIf="Dialog === dialogType.confirmationDelete">حذف آیتم</span>
+      <span *ngIf="Dialog === dialogType.confirmAccetTransactionModal">تأیید تراکنش</span>
+      <span *ngIf="Dialog === dialogType.any">تأیید</span>
+      <span *ngIf="Dialog === dialogType.cancelTransaction">لغو تراکنش</span>
+    </h3>
+  </div>
+
+  <!-- Body Content -->
+  <div class="dialog-body">
+    <p class="dialog-message" *ngIf="Dialog === dialogType.confirmationDelete">
+      {{ message || 'آیا می‌خواهید این آیتم را حذف کنید؟' }}
+    </p>
+
+    <div *ngIf="Dialog === dialogType.confirmAccetTransactionModal" class="transaction-form">
+      <p class="dialog-message">آیا این تراکنش را تایید میکنید؟ در صورت تایید، به کیف پول کاربر افزوده خواهد شد</p>
+      <div class="form-group">
+        <label for="trackingCode">کد پیگیری</label>
+        <input
+          id="trackingCode"
+          type="text"
+          class="form-control"
+          placeholder="کد پیگیری را وارد کنید"
+          [(ngModel)]="trackingCode"
+        />
+      </div>
+    </div>
+
+    <div *ngIf="Dialog === dialogType.cancelTransaction" class="cancel-form">
+      <p class="dialog-message">آیا برای لغو تراکنش مطمئن هستید؟</p>
+      <div class="form-group">
+        <label for="description">توضیحات</label>
+        <textarea
+          id="description"
+          class="form-control"
+          placeholder="توضیحات را وارد کنید"
+          [(ngModel)]="description"
+          rows="3"
+        ></textarea>
+      </div>
+    </div>
+
+    <div *ngIf="Dialog === dialogType.any">
+      <p class="dialog-message">{{message}}</p>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="dialog-footer">
+    <button 
+      class="btn btn-secondary" 
+      (click)="onCancle()"
+      type="button"
+    >
+      {{ btnCancelText || 'انصراف' }}
+    </button>
+    <button
+      class="btn btn-primary"
+      [ngClass]="getPrimaryButtonClass()"
+      (click)="Dialog === dialogType.confirmationDelete ? onConfirm():
+      Dialog === dialogType.confirmAccetTransactionModal ? OnConfirmTransaction():
+      Dialog === dialogType.cancelTransaction?OnConfirmCancelTransaction():
+      Dialog === dialogType.any?onConfirm():
+      ''"
+      type="button"
+    >
+      {{ btnOkText || 'تأیید' }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,196 @@
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+
+/* ===== Auth/Login Page Polish ===== */
+
+.main_container {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 32px);
+  // background-image:url(public/svgs/login/login-bg.svg);
+}
+
+.main_container .container {
+  position: relative;
+  width: 100%;
+  max-width: 415px;
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 4vw, 32px);
+  border: 1px solid var(--color-border);
+  background: linear-gradient(0deg, var(--color-surface), var(--color-surface));
+  box-shadow: var(--shadow-md);
+  isolation: isolate;
+}
+
+
+.main_container h1 {
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  text-shadow: 5px 1px 10px color-mix(in oklab, var(--color-primary) 40%, transparent);
+  margin-bottom: 36px;
+}
+
+.main_container section { margin-top: 10px; }
+
+/* 3) فرم‌ها — تعامل، فوکوس، خطا/موفق، دسترس‌پذیری */
+.main_container .form-group { margin-bottom: 4px; margin-top: 36px; }
+
+
+
+/* Floating label group styling */
+.floating-label-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.floating-label-group label {
+  position: absolute;
+  right: 20px; /* space for icon */
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+  pointer-events: none;
+  font-size: 0.9rem;
+}
+
+.floating-label-group input:focus + label,
+.floating-label-group input:not(:placeholder-shown) + label {
+  top: -15px;
+  right: 10px;
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  background: var(--color-surface);
+  padding: 0 4px;
+}
+
+/* Icon positioning */
+.input-icon {
+  position: absolute;
+  left: 12px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: star;
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+  z-index: 1;
+  cursor: default;
+}
+
+.input-icon.end {
+  right: 22px;
+  cursor: pointer;
+  color: var(--color-primary);
+  transition: all var(--transition-fast);
+}
+
+.input-icon.end:hover {
+  color: var(--color-primary-hover);
+  transform: translateY(-2px);
+}
+
+.input-icon.clickable {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.input-icon.clickable:hover {
+  color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+/* Add right padding to inputs with icons */
+.form-control {
+  position: relative;
+  z-index: 0;
+  padding-left: 40px; /* Space for the left icon */
+}
+
+.form-control.with-end-icon {
+  padding-left: 65px; /* Extra space for both left and left icons */
+}
+
+/* Specific padding for login mobile input with edit icon */
+#login_mobile.form-control {
+  padding-left: 65px;
+}
+
+/* Ensure inputs with icons have proper spacing */
+.floating-label-group .form-control {
+  padding-left: 40px;
+}
+
+/* پیام‌های خطا/راهنما */
+// .text-danger { color: var(--color-error) !important; }
+.field-hint  { color: var(--color-text-muted); font-size: .86rem; margin-top: 6px; }
+
+/* 4) دکمه‌ها — حس تعاملی + حالت لودینگ بدون نیاز به HTML اضافه */
+.main_container .btn {
+  width: 100%;
+  margin-top: 8px;
+  box-shadow: 0 6px 16px color-mix(in oklab, var(--color-shadow) 50%, transparent);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
+}
+
+
+/* 9) تم تاریک — تلطیف گرادیان‌ها و سایه‌ها */
+:root[data-theme='dark'] .main_container {
+  background:
+    radial-gradient(1100px 740px at 110% -10%,
+      color-mix(in oklab, var(--primary-300) 10%, transparent), transparent 62%),
+    radial-gradient(800px 520px at -10% 110%,
+      color-mix(in oklab, var(--third-300) 8%, transparent), transparent 62%),
+    var(--color-bg);
+}
+:root[data-theme='dark'] .main_container .container {
+  box-shadow: 0 10px 32px color-mix(in oklab, var(--color-shadow) 60%, transparent);
+}
+
+/* 10) ریزتنظیم RTL برای ورودی‌های LTR (کد/موبایل) */
+input[dir="ltr"] { text-align: left; letter-spacing: .02em; }
+
+.agreement{
+  text-align: center;
+}
+
+
+/* استایل برای login-text */
+.login-text {
+  font-size: 1.2rem; /* اندازه فونت مناسب */
+  font-weight: 700;  /* ضخامت بیشتر برای تاکید */
+  color: var(--color-primary); /* استفاده از رنگ اصلی برند */
+  letter-spacing: 0.02em; /* کمی کشش حروف برای خوانایی بهتر */
+  text-transform: capitalize; /* حروف اول هر کلمه بزرگ */
+  margin: 12px 0; /* فاصله عمودی از دیگر عناصر */
+
+  /* افکت‌های نرم */
+  transition: color var(--transition-normal), text-shadow var(--transition-normal), transform var(--transition-normal);
+
+  /* سایه‌ی متن برای برجسته‌سازی */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* افکت هوور برای زمانی که کاربر روی عنوان قرار می‌گیرد */
+.login-text:hover {
+  color: var(--color-primary-hover); /* تغییر رنگ به رنگ هوور */
+  transform: translateY(-2px); /* کمی بالا بردن متن هنگام هاور */
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* سایه‌ی بیشتر برای تأثیر */
+}
+
+:root[data-theme='dark'] .login-text {
+  color: var(--color-primary-light); /* رنگ روشن‌تر در تم تاریک */
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2); /* سایه‌ی ملایم سفید در تم تاریک */
+}
+
+
